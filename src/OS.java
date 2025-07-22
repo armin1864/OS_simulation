@@ -1,6 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
+import java.util.*;
 
 public class OS {
     static int n; // number of processes
@@ -8,7 +8,7 @@ public class OS {
     static int[] a; // available instances of each resource type
     static int ps; // page size
     static int pc; // page frame
-    static Process[] processes; // processes
+    static List<Process> processes; // processes
 
     public static void readInputs(){
         try {
@@ -23,16 +23,18 @@ public class OS {
             }
             ps = reader.nextInt();
             pc = reader.nextInt();
-            processes = new Process[n];
+            processes = new ArrayList<>(n);
             int ic;
+            int number =0;
             for(int j=0; j<n; j++){
                 ic = reader.nextInt();
                 reader.nextLine();
-                Process process = new Process(ic);
+                Process process = new Process(number, ic);
                 for(int k=0; k<ic; k++){
                     process.addInstruction(reader.nextLine());
                 }
-                processes[j] = process;
+                processes.add(process);
+                number++;
             }
 
         } catch (FileNotFoundException e){
@@ -40,7 +42,36 @@ public class OS {
         }
     }
 
+
+
+    public static void cpuSchedule(){
+
+        int currentTime=0;
+        processes.sort(Comparator.comparingInt(p -> p.totalRunTime()));
+        Queue<Process> readyQ = new LinkedList<>(processes);
+        Queue<Process> ioQ = new LinkedList<>();
+
+        while (!readyQ.isEmpty() || !ioQ.isEmpty()){
+
+            Iterator<Process> ioIterator = ioQ.iterator(); // iterator for sending processes from ioQ to readyQ
+            while (ioIterator.hasNext()){
+                Process p = ioIterator.next();
+                if(p.ioEndTime <= currentTime){
+                    readyQ.offer(p);
+                    ioIterator.remove();
+                }
+            }
+
+            if(!readyQ.isEmpty()){
+                //TODO: run processes
+            }
+            currentTime++;
+        }
+    }
+
+
     public static void main(String [] args){
         readInputs();
+        cpuSchedule();
     }
 }
