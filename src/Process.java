@@ -15,7 +15,7 @@ public class Process {
     int ic;
     instruction[] instructions;
     int ioEndTime;
-    private int instructionIndex =0;
+    int currentInstruction =0;
 
     public Process(int num,int n){
         number = num;
@@ -23,9 +23,9 @@ public class Process {
         instructions = new instruction[ic];
     }
 
-
+    private int Index =0;
     public void addInstruction(String instruction){
-        if(instructionIndex <ic) {
+        if(Index <ic) {
             String name = instruction.split("\\s+")[0];
             instruction ins = new instruction(name);
             switch (name) {
@@ -36,8 +36,8 @@ public class Process {
                 }
                 case "Read", "Write" -> ins.A = Integer.parseInt(instruction.split("\\s+")[1]);
             }
-            instructions[instructionIndex] = ins;
-            instructionIndex++;
+            instructions[Index] = ins;
+            Index++;
         } else System.out.println("ERROR: instructions numbers are finished");
     }
 
@@ -54,5 +54,18 @@ public class Process {
                 totalRun += instruction.T;
         }
         return totalRun;
+    }
+
+    public void nextInstruction(){
+        currentInstruction++;
+    }
+
+    public String getNextInstruction(){
+        if (currentInstruction < instructions.length-1) return instructions[currentInstruction+1].name;
+        else return "empty";
+    }
+
+    public boolean isEnded(){
+        return currentInstruction >= instructions.length;
     }
 }

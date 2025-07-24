@@ -62,10 +62,34 @@ public class OS {
                 }
             }
 
-            if(!readyQ.isEmpty()){
-                //TODO: run processes
-            }
-            currentTime++;
+            if(!readyQ.isEmpty()) {
+                Process current = readyQ.poll();
+                while (!current.isEnded()) {
+                    String instruction = current.instructions[current.currentInstruction].name;
+
+                    if (instruction.equals("Run")) {
+                        int runTime = current.instructions[current.currentInstruction].T;
+                        System.out.println("EXECUTE" + " " + current.number + " " + currentTime + " " + (currentTime + runTime));
+                        currentTime += runTime;
+                        if(current.getNextInstruction().equals("Run")) {
+                            readyQ.offer(current);
+                        }
+                    }
+                    else if (instruction.equals("Sleep")) {
+                        int sleepTime = current.instructions[current.currentInstruction].T;
+                        System.out.println("WAIT" + " " + current.number + " " + currentTime + " " + (currentTime + sleepTime));
+                        current.ioEndTime += (currentTime + sleepTime);
+                        ioQ.offer(current);
+                        current.nextInstruction();
+                        break;
+                    }
+                    //TODO: Add other instructions
+
+
+                    current.nextInstruction();
+                }
+            } else
+                currentTime++;
         }
     }
 
