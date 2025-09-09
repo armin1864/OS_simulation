@@ -69,7 +69,7 @@ public class OS {
 
                     if (instruction.equals("Run")) {
                         int runTime = current.instructions[current.currentInstruction].T;
-                        System.out.println("EXECUTE" + " " + current.number + " " + currentTime + " " + (currentTime + runTime));
+                        System.out.println("EXECUTE" + " " + current.number + " " + currentTime + " " + (currentTime + runTime)); // TODO: write in stdout
                         currentTime += runTime;
                         if(current.getNextInstruction().equals("Run")) {
                             readyQ.offer(current);
@@ -77,7 +77,7 @@ public class OS {
                     }
                     else if (instruction.equals("Sleep")) {
                         int sleepTime = current.instructions[current.currentInstruction].T;
-                        System.out.println("WAIT" + " " + current.number + " " + currentTime + " " + (currentTime + sleepTime));
+                        System.out.println("WAIT" + " " + current.number + " " + currentTime + " " + (currentTime + sleepTime)); // TODO: write in stdout
                         current.ioEndTime += (currentTime + sleepTime);
                         ioQ.offer(current);
                         current.nextInstruction();

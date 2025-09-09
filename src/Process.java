@@ -2,10 +2,10 @@ public class Process {
 
     class instruction{
         String name;
-        int T;
-        int X;
-        int Y;
-        int A;
+        int T; // Time ms
+        int X; // number of instances
+        int Y; // resource type
+        int A; // logical address
         instruction(String s){
             name = s;
             T = X = Y = A = -1;
@@ -16,7 +16,9 @@ public class Process {
     instruction[] instructions;
     int ioEndTime;
     int currentInstruction =0;
-
+    boolean finished;
+    int[] request;
+    int[] allocation;
     public Process(int num,int n){
         number = num;
         ic = n;
