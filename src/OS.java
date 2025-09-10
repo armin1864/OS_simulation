@@ -43,15 +43,19 @@ public class OS {
     }
 
 
-
+    static int currentTime=0;
     public static void cpuSchedule(){
 
-        int currentTime=0;
+
         processes.sort(Comparator.comparingInt(p -> p.totalRunTime()));
         Queue<Process> readyQ = new LinkedList<>(processes);
         Queue<Process> ioQ = new LinkedList<>();
 
         while (!readyQ.isEmpty() || !ioQ.isEmpty()){
+
+            while(Deadlock.deadlockDetection()){
+                Deadlock.recovery();
+            }
 
             Iterator<Process> ioIterator = ioQ.iterator(); // iterator for sending processes from ioQ to readyQ
             while (ioIterator.hasNext()){

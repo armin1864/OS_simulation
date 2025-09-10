@@ -16,7 +16,7 @@ public class Process {
     instruction[] instructions;
     int ioEndTime;
     int currentInstruction =0;
-    boolean finished;
+    boolean finished=false;
     int[] request;
     int[] allocation;
     public Process(int num,int n){
@@ -60,14 +60,29 @@ public class Process {
 
     public void nextInstruction(){
         currentInstruction++;
+        if (currentInstruction < instructions.length-1)
+            finished = true;
     }
 
     public String getNextInstruction(){
-        if (currentInstruction < instructions.length-1) return instructions[currentInstruction+1].name;
-        else return "empty";
+        if (currentInstruction < instructions.length-1)
+            return instructions[currentInstruction+1].name;
+        return "empty";
     }
 
     public boolean isEnded(){
         return currentInstruction >= instructions.length;
+    }
+
+    public int totalAllocation(){
+        int total =0;
+        for(int a :allocation)
+            total += a;
+        return total;
+    }
+
+    public void rollback(){
+        currentInstruction = 0;
+        finished = false;
     }
 }
