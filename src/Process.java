@@ -84,5 +84,6 @@ public class Process {
     public void rollback(){
         currentInstruction = 0;
         finished = false;
+        ioEndTime = 0;
     }
 }

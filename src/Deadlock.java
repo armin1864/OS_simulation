@@ -58,6 +58,5 @@ public class Deadlock {
             }
         }
         victim.rollback();
-        deadlockDetection();
     }
 }

@@ -9,6 +9,7 @@ public class OS {
     static int ps; // page size
     static int pc; // page frame
     static List<Process> processes; // processes
+    static int currentTime=0;
 
     public static void readInputs(){
         try {
@@ -43,9 +44,7 @@ public class OS {
     }
 
 
-    static int currentTime=0;
     public static void cpuSchedule(){
-
 
         processes.sort(Comparator.comparingInt(p -> p.totalRunTime()));
         Queue<Process> readyQ = new LinkedList<>(processes);
@@ -87,7 +86,12 @@ public class OS {
                         current.nextInstruction();
                         break;
                     }
-                    //TODO: Add other instructions
+                    else if (instruction.equals("Allocate ")){
+
+                    }
+                    else if (instruction.equals("Free ")){
+
+                    }
 
 
                     current.nextInstruction();
