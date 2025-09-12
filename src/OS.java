@@ -11,7 +11,8 @@ public class OS {
     static List<Process> processes; // processes
     static int currentTime = 0;
 
-    static PriorityQueue<Process> readyQ = new PriorityQueue<>(Comparator.comparingInt(p -> p.nextBurstTime()));
+    static PriorityQueue<Process> readyQ = new PriorityQueue<>(
+            Comparator.comparingInt((Process p) -> p.nextBurstTime()).thenComparingInt(p -> p.id()));
     static Queue<Process> ioQ = new LinkedList<>();
     static Queue<Process> waitingQ = new LinkedList<>();
 

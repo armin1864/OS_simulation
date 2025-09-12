@@ -52,6 +52,9 @@ public class Process {
     public boolean isFinished(){
         return finished;
     }
+    public int id(){
+        return number;
+    }
 
     public int nextBurstTime() {
         if (finished) {
