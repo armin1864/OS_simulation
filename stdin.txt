@@ -1,17 +1,22 @@
-3  
-0  
-0  
-0 0    
-4
-Sleep 2
+3
+3
+1 1 1
+0 0
+5
+Run 10
+Sleep 1
+Run 5
+Sleep 1
+Run 1
+5
 Run 2
-Sleep 25
-Run 3  
-3  
-Run 2  
-Sleep 7
-Run 2  
-3  
-Run 2  
-Sleep 6
-Run 3  
+Sleep 1
+Run 6
+Sleep 2
+Run 11
+5
+Run 3
+Sleep 2
+Run 12
+Sleep 1
+Run 7

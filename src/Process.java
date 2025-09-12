@@ -1,35 +1,35 @@
 public class Process {
 
-    class instruction{
+    class Instruction {
         String name;
         int T; // Time ms
         int X; // number of instances
         int Y; // resource type
         int A; // logical address
-        instruction(String s){
+        Instruction(String s){
             name = s;
             T = X = Y = A = -1;
         }
     }
     int number;
     int ic;
-    instruction[] instructions;
+    Instruction[] instructions;
     int ioEndTime;
     int currentInstruction =0;
     boolean finished=false;
-    int[] request;
-    int[] allocation;
+    int[] request = new int[OS.m];
+    int[] allocation = new int[OS.m];
     public Process(int num,int n){
         number = num;
         ic = n;
-        instructions = new instruction[ic];
+        instructions = new Instruction[ic];
     }
 
     private int Index =0;
     public void addInstruction(String instruction){
         if(Index <ic) {
             String name = instruction.split("\\s+")[0];
-            instruction ins = new instruction(name);
+            Instruction ins = new Instruction(name);
             switch (name) {
                 case "Run", "Sleep" -> ins.T = Integer.parseInt(instruction.split("\\s+")[1]);
                 case "Allocate", "Free" -> {
@@ -43,15 +43,9 @@ public class Process {
         } else System.out.println("ERROR: instructions numbers are finished");
     }
 
-    public void printInstructions(){
-        for(instruction i : instructions){
-            System.out.println(i.name + i.T + i.X + i.Y + i.A);
-        }
-    }
-
     public int totalRunTime(){
         int totalRun = 0;
-        for(instruction instruction : instructions ){
+        for(Instruction instruction : instructions){
             if(instruction.name.equals("Run"))
                 totalRun += instruction.T;
         }
@@ -60,25 +54,12 @@ public class Process {
 
     public void nextInstruction(){
         currentInstruction++;
-        if (currentInstruction < instructions.length-1)
+        if (currentInstruction >= instructions.length)
             finished = true;
-    }
-
-    public String getNextInstruction(){
-        if (currentInstruction < instructions.length-1)
-            return instructions[currentInstruction+1].name;
-        return "empty";
     }
 
     public boolean isEnded(){
         return currentInstruction >= instructions.length;
-    }
-
-    public int totalAllocation(){
-        int total =0;
-        for(int a :allocation)
-            total += a;
-        return total;
     }
 
     public void rollback(){

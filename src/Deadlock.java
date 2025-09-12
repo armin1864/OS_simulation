@@ -2,7 +2,7 @@ public class Deadlock {
 
     static Process victim=null;
 
-    static boolean deadlockDetection(){
+    static boolean deadlockDetection(){ // deadlock detection algorithm with matrix
         int[] work= OS.a.clone();
         boolean[] finish=new boolean[OS.processes.size()];
         boolean progress =true;
@@ -12,7 +12,7 @@ public class Deadlock {
                 Process p=OS.processes.get(i);
                 if(p.finished||finish[i]) continue;
                 if(canAllocate(p.request,work)){
-                    addRes(work,p.allocation);
+                    addResource(work,p.allocation);
                     finish[i]=true;
                     progress=true;
                 }
@@ -33,26 +33,16 @@ public class Deadlock {
         return true;
     }
 
-    static void addRes(int[] w, int[] alloc){
+    static void addResource(int[] w, int[] alloc){
         for(int j = 0; j< OS.m; j++)
             w[j]+=alloc[j];
     }
 
-    static void recovery(){
-        /*
-        // preempt resources from process that has most allocated resources
-        int max =0;
-        for(Process p:OS.processes){
-            if(p.finished) continue;
-            if(p.totalAllocation()> max){
-                max =p.totalAllocation();
-                victim=p;
-            }
-        } */
+    static void recovery(){ // preempts allocated resources from the process which is first process that causes deadlock
         if(victim==null) return;
         for(int j=0;j<OS.m;j++){
             if(victim.allocation[j]>0){
-                System.out.println("TAKE"+ victim.number + victim.allocation[j] + j + OS.currentTime); //TODO: write in stdout
+                OS.write("TAKE"+" "+victim.number+" "+victim.allocation[j]+" "+j+" "+OS.currentTime);
                 OS.a[j]+=victim.allocation[j];
                 victim.allocation[j]=0;
             }
