@@ -111,7 +111,6 @@ public class OS {
         readyQ.addAll(processes);
         while (!readyQ.isEmpty() || !ioQ.isEmpty() || !waitingQ.isEmpty()) {
             checkIo();
-
             if (!readyQ.isEmpty()) {
                 Process current = readyQ.poll();
                 while (!current.finished) {
@@ -166,15 +165,16 @@ public class OS {
                 }
                 if(current.finished){
                     for(int i=0; i<a.length; i++){
+                        write("TAKE" + " " + current.number + " " + current.allocation[i] + " " + i + " " + currentTime);
                         a[i] += current.allocation[i];
                         current.allocation[i]=0;
                     }
                     checkWaiting();
                 }
-            } else {
+            } else currentTime++;
+            if(!waitingQ.isEmpty()){
                 checkDeadlock();
                 checkWaiting();
-                currentTime++;
             }
         }
     }

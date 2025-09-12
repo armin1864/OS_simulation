@@ -3,26 +3,22 @@ public class Deadlock {
     static Process victim=null;
 
     public static boolean deadlockDetection(){ // deadlock detection algorithm with matrix
-        int[] work= new int[OS.m];
-        System.arraycopy(OS.a, 0, work, 0, OS.m);
+        int[] work= OS.a.clone();
         boolean[] finish=new boolean[OS.processes.size()];
         for(int i=0; i<finish.length; i++){
             Process p =OS.processes.get(i);
             for(int j=0; j<OS.m; j++){
-                if(p.isFinished())
-                    finish[i] = true;
-                else
-                    finish[i] = false;
+                finish[i] = p.isFinished();
             }
         }
-        boolean progress =true;
+        boolean progress = true;
         while(progress){
             progress=false;
             for(int i=0;i<OS.processes.size();i++){
                 Process p=OS.processes.get(i);
                 if(!finish[i]) {
                     if (canAllocate(p.request, work)) {
-                        addResource(work, p.allocation);
+                        addResource(p.allocation, work);
                         finish[i] = true;
                         progress = true;
                     }
@@ -38,18 +34,18 @@ public class Deadlock {
         return false;
     }
 
-    static boolean canAllocate(int[] req, int[] work){
+    static boolean canAllocate(int[] request, int[] work){
         for(int j = 0; j< OS.m; j++) {
-            if (req[j] > work[j]) {
+            if (request[j] > work[j]) {
                 return false;
             }
         }
         return true;
     }
 
-    static void addResource(int[] w, int[] alloc){
+    static void addResource(int[] allocation, int[] work){
         for(int j = 0; j< OS.m; j++)
-            w[j]+=alloc[j];
+            work[j]+=allocation[j];
     }
 
     public static void recovery(){ // preempts allocated resources from the process which is first process that causes deadlock
@@ -59,7 +55,6 @@ public class Deadlock {
                 OS.write("TAKE"+" "+victim.number+" "+victim.allocation[j]+" "+j+" "+OS.currentTime);
                 OS.a[j]+=victim.allocation[j];
                 victim.allocation[j]=0;
-                victim.request[j] = 0;
             }
         }
         victim.rollback();

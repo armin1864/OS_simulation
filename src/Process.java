@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class Process {
 
     class Instruction {
@@ -19,7 +17,6 @@ public class Process {
     int ioEndTime;
     int currentInstruction =0;
     boolean finished=false;
-    boolean blocked=false;
     int[] request = new int[OS.m];
     int[] allocation = new int[OS.m];
     public Process(int num,int n){
@@ -57,12 +54,11 @@ public class Process {
     }
 
     public int nextBurstTime() {
-        if (finished || currentInstruction >= instructions.length) {
+        if (finished) {
             return Integer.MAX_VALUE;
         }
-        Instruction nextInstruction = instructions[currentInstruction];
-        if (nextInstruction.name.equals("Run")) {
-            return nextInstruction.T;
+        if (instructions[currentInstruction].name.equals("Run")) {
+            return instructions[currentInstruction].T;
         }
         for (int i = currentInstruction; i < instructions.length; i++) {
             if (instructions[i].name.equals("Run")) {
@@ -76,6 +72,10 @@ public class Process {
         currentInstruction = 0;
         finished = false;
         ioEndTime = 0;
+        for(int i=0; i<request.length; i++){
+            request[i]=0;
+            allocation[i]=0;
+        }
     }
 
 }
