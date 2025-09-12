@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Process {
 
     class Instruction {
@@ -50,6 +52,10 @@ public class Process {
             finished = true;
     }
 
+    public boolean isFinished(){
+        return finished;
+    }
+
     public int nextBurstTime() {
         if (finished || currentInstruction >= instructions.length) {
             return Integer.MAX_VALUE;
@@ -71,4 +77,5 @@ public class Process {
         finished = false;
         ioEndTime = 0;
     }
+
 }

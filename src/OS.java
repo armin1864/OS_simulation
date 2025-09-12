@@ -90,18 +90,28 @@ public class OS {
             }
             if (count == m) {
                 for(int j=0; j<m; j++){
+                    p.allocation[j] += p.request[j];
+                    a[j] -= p.request[j];
                     p.request[j]=0;
                 }
+                p.nextInstruction();
                 readyQ.add(p);
                 waitingIterator.remove();
             }
         }
     }
 
+    private static void checkDeadlock(){
+        while(Deadlock.deadlockDetection()) {
+            Deadlock.recovery();
+        }
+    }
+
     private static void cpuSchedule() {
         readyQ.addAll(processes);
-        while (!readyQ.isEmpty() || !ioQ.isEmpty()) {
+        while (!readyQ.isEmpty() || !ioQ.isEmpty() || !waitingQ.isEmpty()) {
             checkIo();
+
             if (!readyQ.isEmpty()) {
                 Process current = readyQ.poll();
                 while (!current.finished) {
@@ -124,25 +134,19 @@ public class OS {
                     }
 
                     else if (instruction.name.equals("Allocate")) {
-                        if (Deadlock.deadlockDetection()) {
-                            Deadlock.recovery();
-                            System.out.println("recovery");
-                        }
+                        checkDeadlock();
                         checkWaiting();
                         if (a[instruction.Y] >= instruction.X) {
                             current.allocation[instruction.Y] += instruction.X;
                             a[instruction.Y] -= instruction.X;
-                            current.request[instruction.Y] = 0;
                             write("GIVE" + " " + current.number + " " + instruction.X + " " + instruction.Y + " " + currentTime);
                             current.nextInstruction();
                         }
                         else {
                             current.request[instruction.Y] = instruction.X;
                             waitingQ.offer(current);
-                            System.out.println("blocked");
                             break;
                         }
-
                     }
 
                     else if (instruction.name.equals("Free")) {
@@ -167,8 +171,11 @@ public class OS {
                     }
                     checkWaiting();
                 }
-            } else
+            } else {
+                checkDeadlock();
+                checkWaiting();
                 currentTime++;
+            }
         }
     }
 
