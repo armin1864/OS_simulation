@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class OS {
+
     static int n; // number of processes
     static int m; // number of resource types
     static int[] a; // available instances of each resource type
@@ -9,6 +10,10 @@ public class OS {
     static int pc; // page frame
     static List<Process> processes; // processes
     static int currentTime = 0;
+
+    static PriorityQueue<Process> readyQ = new PriorityQueue<>(Comparator.comparingInt(p -> p.nextBurstTime()));
+    static Queue<Process> ioQ = new LinkedList<>();
+    static Queue<Process> waitingQ = new LinkedList<>();
 
     // produce output string and output lines count
     private static String output = "";
@@ -61,23 +66,42 @@ public class OS {
         }
     }
 
-    private static void cpuSchedule() {
+    private static void checkIo() {
+        Iterator<Process> ioIterator = ioQ.iterator(); // iterator for sending processes from ioQ to readyQ
+        while (ioIterator.hasNext()) {
+            Process p = ioIterator.next();
+            if (p.ioEndTime <= currentTime) {
+                readyQ.offer(p);
+                ioIterator.remove();
+            }
+        }
+    }
 
-        PriorityQueue<Process> readyQ = new PriorityQueue<>(Comparator.comparingInt(p -> p.totalRunTime()));
-        Queue<Process> ioQ = new LinkedList<>();
-        readyQ.addAll(processes);
-
-        while (!readyQ.isEmpty() || !ioQ.isEmpty()) {
-
-            Iterator<Process> ioIterator = ioQ.iterator(); // iterator for sending processes from ioQ to readyQ
-            while (ioIterator.hasNext()) {
-                Process p = ioIterator.next();
-                if (p.ioEndTime <= currentTime) {
-                    readyQ.offer(p);
-                    ioIterator.remove();
+    private static void checkWaiting() {
+        Iterator<Process> waitingIterator = waitingQ.iterator(); // iterator for sending processes from waitingQ to readyQ
+        while (waitingIterator.hasNext()) {
+            Process p = waitingIterator.next();
+            int count = 0;  // if available resources are more,equal than requested count goes up by 1.
+                            // if count == length means that in all indexes available is more,equal and we can allocate them to process
+            for (int i = 0; i < m; i++) {
+                if (a[i] >= p.request[i]) {
+                    count++;
                 }
             }
+            if (count == m) {
+                for(int j=0; j<m; j++){
+                    p.request[j]=0;
+                }
+                readyQ.add(p);
+                waitingIterator.remove();
+            }
+        }
+    }
 
+    private static void cpuSchedule() {
+        readyQ.addAll(processes);
+        while (!readyQ.isEmpty() || !ioQ.isEmpty()) {
+            checkIo();
             if (!readyQ.isEmpty()) {
                 Process current = readyQ.poll();
                 while (!current.finished) {
@@ -88,32 +112,38 @@ public class OS {
                         write("EXECUTE" + " " + current.number + " " + currentTime + " " + (currentTime + runTime));
                         currentTime += runTime;
                         current.nextInstruction();
-                    } else if (instruction.name.equals("Sleep")) {
+                    }
+
+                    else if (instruction.name.equals("Sleep")) {
                         int sleepTime = current.instructions[current.currentInstruction].T;
                         write("WAIT" + " " + current.number + " " + currentTime + " " + (currentTime + sleepTime));
                         current.ioEndTime = (currentTime + sleepTime);
                         ioQ.offer(current);
                         current.nextInstruction();
                         break;
-                    } else if (instruction.name.equals("Allocate")) {
+                    }
 
+                    else if (instruction.name.equals("Allocate")) {
                         while (Deadlock.deadlockDetection()) {
                             Deadlock.recovery();
                         }
-                        if (a[instruction.Y] > instruction.X) {
-
+                        checkWaiting();
+                        if (a[instruction.Y] >= instruction.X) {
                             current.allocation[instruction.Y] += instruction.X;
                             a[instruction.Y] -= instruction.X;
                             current.request[instruction.Y] = 0;
                             write("GIVE" + " " + current.number + " " + instruction.X + " " + instruction.Y + " " + currentTime);
                             current.nextInstruction();
-
-                        } else {
+                        }
+                        else {
                             current.request[instruction.Y] = instruction.X;
-                            //TODO: block process
+                            waitingQ.offer(current);
+                            break;
                         }
 
-                    } else if (instruction.name.equals("Free")) {
+                    }
+
+                    else if (instruction.name.equals("Free")) {
                         if (current.allocation[instruction.Y] > instruction.X) {
                             a[instruction.Y] += instruction.X;
                             current.allocation[instruction.Y] -= instruction.X;
@@ -124,9 +154,16 @@ public class OS {
                             write("TAKE" + " " + current.number + " " + current.allocation[instruction.Y] + " " + instruction.Y + " " + currentTime);
                             current.allocation[instruction.Y] = 0;
                         }
+                        checkWaiting();
                         current.nextInstruction();
                     }
-
+                }
+                if(current.finished){
+                    for(int i=0; i<a.length; i++){
+                        a[i] += current.allocation[i];
+                        current.allocation[i]=0;
+                    }
+                    checkWaiting();
                 }
             } else
                 currentTime++;

@@ -17,6 +17,7 @@ public class Process {
     int ioEndTime;
     int currentInstruction =0;
     boolean finished=false;
+    boolean blocked=false;
     int[] request = new int[OS.m];
     int[] allocation = new int[OS.m];
     public Process(int num,int n){
@@ -43,23 +44,21 @@ public class Process {
         } else System.out.println("ERROR: instructions numbers are finished");
     }
 
-    public int totalRunTime(){
-        int totalRun = 0;
-        for(Instruction instruction : instructions){
-            if(instruction.name.equals("Run"))
-                totalRun += instruction.T;
-        }
-        return totalRun;
-    }
-
     public void nextInstruction(){
         currentInstruction++;
         if (currentInstruction >= instructions.length)
             finished = true;
     }
 
-    public boolean isEnded(){
-        return currentInstruction >= instructions.length;
+    public int nextBurstTime() {
+        if (finished || currentInstruction >= instructions.length) {
+            return Integer.MAX_VALUE;
+        }
+        Instruction nextInstruction = instructions[currentInstruction];
+        if (nextInstruction.name.equals("Run")) {
+            return nextInstruction.T;
+        }
+        return 0;
     }
 
     public void rollback(){
