@@ -5,22 +5,32 @@ public class Deadlock {
     static boolean deadlockDetection(){ // deadlock detection algorithm with matrix
         int[] work= OS.a.clone();
         boolean[] finish=new boolean[OS.processes.size()];
+        for(int i=0; i<finish.length; i++){
+            Process p =OS.processes.get(i);
+            for(int j=0; j<OS.m; j++){
+                if(p.allocation[i] > 0)
+                    finish[i] = false;
+                else
+                    finish[i] = true;
+            }
+        }
         boolean progress =true;
         while(progress){
             progress=false;
             for(int i=0;i<OS.processes.size();i++){
                 Process p=OS.processes.get(i);
-                if(p.finished||finish[i]) continue;
-                if(canAllocate(p.request,work)){
-                    addResource(work,p.allocation);
-                    finish[i]=true;
-                    progress=true;
+                if(!finish[i]) {
+                    if (canAllocate(p.request, work)) {
+                        addResource(work, p.allocation);
+                        finish[i] = true;
+                        progress = true;
+                    }
                 }
             }
         }
-        for(int i=0;i<OS.processes.size();i++){
-            if(!OS.processes.get(i).finished && !finish[i]){
-                victim = OS.processes.get(i);  // this process is in deadlock cycle
+        for(int j = 0; j <OS.processes.size(); j++){
+            if(!finish[j]){
+                victim = OS.processes.get(j); // this process is in deadlock cycle
                 return true;
             }
         }
@@ -28,8 +38,12 @@ public class Deadlock {
     }
 
     static boolean canAllocate(int[] req, int[] work){
-        for(int j = 0; j< OS.m; j++)
-            if(req[j]>work[j]) return false;
+        for(int j = 0; j< OS.m; j++) {
+            if (req[j] > work[j]) {
+                System.out.println("false");
+                return false;
+            }
+        }
         return true;
     }
 

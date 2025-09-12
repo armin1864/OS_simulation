@@ -58,6 +58,11 @@ public class Process {
         if (nextInstruction.name.equals("Run")) {
             return nextInstruction.T;
         }
+        for (int i = currentInstruction; i < instructions.length; i++) {
+            if (instructions[i].name.equals("Run")) {
+                return instructions[i].T;
+            }
+        }
         return 0;
     }
 

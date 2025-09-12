@@ -124,8 +124,9 @@ public class OS {
                     }
 
                     else if (instruction.name.equals("Allocate")) {
-                        while (Deadlock.deadlockDetection()) {
+                        if (Deadlock.deadlockDetection()) {
                             Deadlock.recovery();
+                            System.out.println("recovery");
                         }
                         checkWaiting();
                         if (a[instruction.Y] >= instruction.X) {
@@ -138,13 +139,14 @@ public class OS {
                         else {
                             current.request[instruction.Y] = instruction.X;
                             waitingQ.offer(current);
+                            System.out.println("blocked");
                             break;
                         }
 
                     }
 
                     else if (instruction.name.equals("Free")) {
-                        if (current.allocation[instruction.Y] > instruction.X) {
+                       if (current.allocation[instruction.Y] >= instruction.X) {
                             a[instruction.Y] += instruction.X;
                             current.allocation[instruction.Y] -= instruction.X;
                             write("TAKE" + " " + current.number + " " + instruction.X + " " + instruction.Y + " " + currentTime);
