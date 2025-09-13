@@ -48,7 +48,7 @@ public class Deadlock {
             work[j]+=allocation[j];
     }
 
-    public static void recovery(){ // preempts allocated resources from the process which is first process that causes deadlock
+    public static void recoverykill(){ // preempts allocated resources from the process which is first process that causes deadlock
         if(victim==null) return;
         for(int j=0;j<OS.m;j++){
             if(victim.allocation[j]>0){
@@ -58,5 +58,22 @@ public class Deadlock {
             }
         }
         victim.rollback();
+    }
+
+    public static void recoveryPreempt(){ // preempts allocated resources from the process which is first process that causes deadlock
+        if(victim==null) return;
+        for(int j=0;j<OS.m;j++){
+            if(victim.allocation[j]>0){
+                OS.write("TAKE"+" "+victim.number+" "+victim.allocation[j]+" "+j+" "+OS.currentTime);
+                OS.a[j]+=victim.allocation[j];
+                victim.request[j] += victim.allocation[j];
+                victim.allocation[j]=0;
+            }
+        }
+        if(OS.readyQ.contains(victim) || OS.ioQ.contains(victim)) {
+            OS.waitingQ.offer(victim);
+            OS.ioQ.remove(victim);
+            OS.readyQ.remove(victim);
+        }
     }
 }

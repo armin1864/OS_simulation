@@ -104,7 +104,7 @@ public class OS {
 
     private static void checkDeadlock(){
         while(Deadlock.deadlockDetection()) {
-            Deadlock.recovery();
+            Deadlock.recoverykill();
         }
     }
 
